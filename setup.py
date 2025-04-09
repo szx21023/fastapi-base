@@ -1,5 +1,8 @@
 from setuptools import setup, find_packages
 
+with open('requirements.txt', 'r') as f:
+    requirements = f.readlines()
+
 setup(
     name='fastapi_basic', # 模組名稱
     version='0.0.0', # 版號版號
@@ -15,8 +18,6 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
     ],
-    install_requires=[ # 依賴庫
-        'requests',
-    ],
+    install_requires = [req.strip() for req in requirements],
     python_requires='>=3.6', # 支持的 Python 版本
 )
