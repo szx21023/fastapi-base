@@ -25,5 +25,5 @@ class BaseFactory(metaclass=ABCMeta):
         return app
 
     def __load_local_config(self):
-        dotenv.load_dotenv(override=True)
+        dotenv.load_dotenv(dotenv_path='.env', override=True)
         update_dict_with_cast(self.get_app_config(), os.environ)
