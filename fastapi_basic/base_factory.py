@@ -5,11 +5,11 @@ import os, dotenv
 from fastapi import FastAPI
 import logging
 
+from .const import LOG_DEFAULT_LOGGER_NAME, LOG_FMT
 from .utils import update_dict_with_cast
 
 class BaseFactory(metaclass=ABCMeta):
-    logger_name = 'my_log'
-    log_formatter = logging.Formatter('%(asctime)s %(filename)s %(levelname)s: %(message)s')
+    log_formatter = logging.Formatter(LOG_FMT)
 
     @abstractmethod
     @lru_cache()
@@ -27,7 +27,7 @@ class BaseFactory(metaclass=ABCMeta):
         app = FastAPI(docs_url=app_config.get('DOCS_URL'), redoc_url=app_config.get('REDOC_URL'), openapi_url=app_config.get('OPENAPI_URL'))
         app.state.config = app_config
 
-        self.__setup_main_logger(app, level=logging.DEBUG)
+        self.__setup_main_logger(app, logger_name=app.state.config.get('LOGGER_NAME', LOG_DEFAULT_LOGGER_NAME), level=logging.DEBUG)
 
         return app
 
@@ -35,7 +35,7 @@ class BaseFactory(metaclass=ABCMeta):
         dotenv.load_dotenv(dotenv_path='.env', override=True)
         update_dict_with_cast(self.get_app_config(), os.environ)
 
-    def __setup_main_logger(self, app, logger_name=logger_name, level=logging.DEBUG):
+    def __setup_main_logger(self, app, logger_name=LOG_DEFAULT_LOGGER_NAME, level=logging.DEBUG):
         logger = self.__setup_logger(app, logger_name, level)
         app.logger = logger
 
