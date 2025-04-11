@@ -9,8 +9,6 @@ from .const import LOG_DEFAULT_LOGGER_NAME, LOG_FMT
 from .utils import update_dict_with_cast
 
 class BaseFactory(metaclass=ABCMeta):
-    log_formatter = logging.Formatter(LOG_FMT)
-
     @abstractmethod
     @lru_cache()
     def get_app_config(self):
@@ -44,6 +42,6 @@ class BaseFactory(metaclass=ABCMeta):
         logger.setLevel(level)
 
         stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(self.log_formatter)
+        stream_handler.setFormatter(logging.Formatter(LOG_FMT))
         logger.addHandler(stream_handler)
         return logger
