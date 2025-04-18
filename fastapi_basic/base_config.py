@@ -8,3 +8,10 @@ class BaseConfig(BaseSettings):
 
     # Logging config
     LOGGER_NAME: str|None = 'uvicorn'
+
+    # AWS
+    AWS_ACCESS_KEY_ID: str = ""
+    AWS_SECRET_KEY: str = ""
+    AWS_REGION: str = ""
+    AWS_PARAMETER_PATH_PREFIX: str = ""
+    AWS_LOGGROUP_NAME: str = ""

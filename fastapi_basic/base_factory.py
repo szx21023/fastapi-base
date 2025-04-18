@@ -2,11 +2,13 @@ from abc import ABCMeta, abstractmethod
 from functools import lru_cache
 import os, dotenv
 
+import watchtower
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.concurrency import iterate_in_threadpool
 import logging
 
+from .ext.aws import init_app as init_aws_app
 from .const import LOG_DEFAULT_LOGGER_NAME, LOG_FMT
 from .utils import update_dict_with_cast
 
@@ -35,6 +37,15 @@ class BaseFactory(metaclass=ABCMeta):
         logger.addHandler(stream_handler)
         return logger
 
+    def __setup_aws_cloud_log(self, app):
+        if app.state.aws_session and app.state.config.get("AWS_LOGGROUP_NAME"):
+            logs_client = app.state.aws_session.client("logs")
+            watchtower_handler = watchtower.CloudWatchLogHandler(
+                log_group_name=app.state.config.get("AWS_LOGGROUP_NAME"),
+                boto3_client=logs_client, create_log_group=True)
+            watchtower_handler.setFormatter(logging.Formatter(LOG_FMT))
+            app.logger.addHandler(watchtower_handler)
+
     def create_app(self):
         """
         Create an application instance.
@@ -52,6 +63,8 @@ class BaseFactory(metaclass=ABCMeta):
             allow_headers=['*'],
         )
         self.__setup_main_logger(app, logger_name=app.state.config.get('LOGGER_NAME', LOG_DEFAULT_LOGGER_NAME), level=logging.DEBUG)
+        app.state.aws_session = init_aws_app(app)
+        self.__setup_aws_cloud_log(app)
 
         @app.middleware("http")
         async def handle_request_headers(request: Request, call_next):
