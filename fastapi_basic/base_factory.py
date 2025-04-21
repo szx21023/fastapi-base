@@ -3,7 +3,8 @@ from functools import lru_cache
 import os, dotenv
 
 import watchtower
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.concurrency import iterate_in_threadpool
 import logging
@@ -65,6 +66,17 @@ class BaseFactory(metaclass=ABCMeta):
         self.__setup_main_logger(app, logger_name=app.state.config.get('LOGGER_NAME', LOG_DEFAULT_LOGGER_NAME), level=logging.DEBUG)
         app.state.aws_session = init_aws_app(app)
         self.__setup_aws_cloud_log(app)
+
+        @app.exception_handler(HTTPException)
+        async def http_exception_handler(request, exc):
+            return JSONResponse(
+                status_code=exc.status_code,
+                content={
+                    "code": exc.detail["code"],
+                    "message": exc.detail["message"],
+                    "data": exc.detail["data"]
+                }
+            )
 
         @app.middleware("http")
         async def handle_request_headers(request: Request, call_next):
