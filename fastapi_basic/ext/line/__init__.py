@@ -11,9 +11,9 @@ class LineBot:
         self.line_bot_api = LineBotApi(self.channel_access_token)
         self.handler = WebhookHandler(self.channel_secret)
 
-    async def reply_message(self, event, message):
+    async def reply_message(self, event, text: str):
         try:
-            self.line_bot_api.reply_message(event.reply_token, TextMessage(text=message))
+            self.line_bot_api.reply_message(event.reply_token, TextMessage(text=text))
 
         except LineBotApiError as err:
             exception = LineBotException(str(err))
