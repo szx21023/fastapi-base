@@ -5,7 +5,7 @@ with open('requirements.txt', 'r') as f:
 
 setup(
     name='fastapi_basic', # 模組名稱
-    version='0.1.1', # 版號版號
+    version='0.1.2', # 版號版號
     description='A short description of your module', # 模塊描述
     long_description=open('README.md').read(), # 詳細描述，通常是 README 文件的内容
     long_description_content_type='text/markdown', # markdown 格式
