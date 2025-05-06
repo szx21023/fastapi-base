@@ -21,7 +21,7 @@ class LineBot(metaclass=ABCMeta):
         try:
             self.line_bot_api.reply_message(event.reply_token, TextMessage(text=text))
             message = f"Send line message successful, event: {event}, text: {text}"
-            self.logger_message(message)
+            self.log_message(message)
 
         except LineBotApiError as err:
             exception = LineBotException(str(err))
@@ -31,7 +31,7 @@ class LineBot(metaclass=ABCMeta):
         try:
             self.line_bot_api.push_message(line_uid, TextSendMessage(text=text))
             message = f"Send line message successful, line_uid: {line_uid}, text: {text}"
-            self.logger_message(message)
+            self.log_message(message)
 
         except LineBotApiError as err:
             message = f"Send line message fail, line_uid: {line_uid}, text: {text}, err: {str(err)}"
@@ -52,5 +52,5 @@ class LineBot(metaclass=ABCMeta):
         @self.handler.add(MessageEvent, message=TextMessage)
         def handle_message(event: MessageEvent):
             message = f'handle_message: {event}'
-            self.logger_message(message)
+            self.log_message(message)
             asyncio.create_task(self.handle_message(event))
