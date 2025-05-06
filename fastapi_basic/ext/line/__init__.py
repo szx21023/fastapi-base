@@ -38,7 +38,7 @@ class LineBot(metaclass=ABCMeta):
             exception = LineBotException(message)
             raise exception
 
-    async def log_message(self, log_message: str):
+    def log_message(self, log_message: str):
         if self.logger:
             self.logger.info(log_message)
 
