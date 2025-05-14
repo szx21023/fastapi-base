@@ -3,13 +3,14 @@ from functools import lru_cache
 import os, dotenv
 
 import watchtower
+from celery import Celery
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.concurrency import iterate_in_threadpool
 import logging
 
-from .const import LOG_DEFAULT_LOGGER_NAME, LOG_FMT
+from .const import LOG_DEFAULT_LOGGER_NAME, LOG_FMT, CELERY_CONFIG
 from .ext.aws import init_app as init_aws_app
 from .exception.base_exception import InternalBaseException
 from .utils import update_dict_with_cast
@@ -48,6 +49,17 @@ class BaseFactory(metaclass=ABCMeta):
             watchtower_handler.setFormatter(logging.Formatter(LOG_FMT))
             app.logger.addHandler(watchtower_handler)
 
+    def __setup_celery_app(self, app):
+        if not all([app.state.config.get(key) for key in CELERY_CONFIG]):
+            app.logger.info("Lack Celery config keys, ignore get Celery_app")
+            return None
+
+        app.state.celery_app = Celery(
+            app.state.config.get("CELERY_APP"),
+            broker=app.state.config.get("CELERY_BROKER_URL"),
+            backend=app.state.config.get("CELERY_BACKEND_URL")
+        )
+
     def create_app(self):
         """
         Create an application instance.
@@ -67,6 +79,8 @@ class BaseFactory(metaclass=ABCMeta):
         self.__setup_main_logger(app, logger_name=app.state.config.get('LOGGER_NAME', LOG_DEFAULT_LOGGER_NAME), level=logging.DEBUG)
         app.state.aws_session = init_aws_app(app)
         self.__setup_aws_cloud_log(app)
+
+        self.__setup_celery_app(app)
 
         @app.exception_handler(InternalBaseException)
         async def http_exception_handler(request: Request, exc: InternalBaseException):
