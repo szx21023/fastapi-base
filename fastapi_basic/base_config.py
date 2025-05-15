@@ -15,3 +15,8 @@ class BaseConfig(BaseSettings):
     AWS_REGION: str = ""
     AWS_PARAMETER_PATH_PREFIX: str = ""
     AWS_LOGGROUP_NAME: str = ""
+
+    # Celery config
+    CELERY_APP: str|None = ""
+    CELERY_BROKER_URL: str|None = ""
+    CELERY_BACKEND_URL: str|None = ""
