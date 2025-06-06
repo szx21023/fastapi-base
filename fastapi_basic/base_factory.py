@@ -84,6 +84,7 @@ class BaseFactory(metaclass=ABCMeta):
 
         @app.exception_handler(InternalBaseException)
         async def http_exception_handler(request: Request, exc: InternalBaseException):
+            app.logger.warning(f'message: {exc.detail["message"]}')
             return JSONResponse(
                 status_code=exc.status_code,
                 content={
