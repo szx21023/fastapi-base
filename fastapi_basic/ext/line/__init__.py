@@ -5,7 +5,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import LineBotApiError
 from linebot.models import TextMessage, TextSendMessage, MessageEvent
 
-from ...exception.base_exception import LineBotException
+from .exception import LineBotException
 
 class LineBot(metaclass=ABCMeta):
     def __init__(self, channel_access_token: str, channel_secret: str, logger=None):
