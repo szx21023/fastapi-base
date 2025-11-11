@@ -24,7 +24,7 @@ class LineBot(metaclass=ABCMeta):
             self.log_message(message)
 
         except LineBotApiError as err:
-            exception = LineBotException(str(err))
+            exception = LineBotException(message=str(err))
             raise exception
 
     async def push_message(self, line_uid: str, text: str):
@@ -35,7 +35,7 @@ class LineBot(metaclass=ABCMeta):
 
         except LineBotApiError as err:
             message = f"Send line message fail, line_uid: {line_uid}, text: {text}, err: {str(err)}"
-            exception = LineBotException(message)
+            exception = LineBotException(message=message)
             raise exception
 
     def log_message(self, log_message: str):
